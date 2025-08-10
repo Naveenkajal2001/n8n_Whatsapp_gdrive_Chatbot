@@ -1,0 +1,424 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "com.twilio.messaging.inbound-message.received"
+        ]
+      },
+      "type": "n8n-nodes-base.twilioTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "***REDACTED***",
+      "name": "Twilio Trigger",
+      "webhookId": "***REDACTED***",
+      "credentials": {
+        "twilioApi": {
+          "id": "***REDACTED***",
+          "name": "Twilio account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json[\"command\"] }}\n",
+                    "rightValue": "list\n",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "***REDACTED***"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "list"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "***REDACTED***",
+                    "leftValue": "={{ $json[\"command\"] }}",
+                    "rightValue": "delete",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "delete"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "***REDACTED***",
+                    "leftValue": "={{ $json[\"command\"] }}",
+                    "rightValue": "move",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "move"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "***REDACTED***",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "={{$json[\"parameter\"]}}",
+        "filter": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1152,
+        -144
+      ],
+      "id": "***REDACTED***",
+      "name": "Search files and folders",
+      "retryOnFail": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "***REDACTED***",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "deleteFile",
+        "fileId": {
+          "__rl": true,
+          "value": "={{$json[\"id\"]}}\n",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1200,
+        80
+      ],
+      "id": "***REDACTED***",
+      "name": "Delete a file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "***REDACTED***",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "value": "={{$json[\"id\"]}}",
+          "mode": "id"
+        },
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1152,
+        240
+      ],
+      "id": "***REDACTED***",
+      "name": "Move file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "***REDACTED***",
+          "name": "REDACTED"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "from": "+1(415)523-8886",
+        "to": "***REDACTED***",
+        "toWhatsapp": true,
+        "message": "={{ \n  $json[\"files\"] && $json[\"files\"].length > 0\n    ? \"Files:\\n\" + $json[\"files\"].map(f => f.name).join(\"\\n\")\n    : $json[\"files\"] && $json[\"files\"].length === 0\n      ? \"No files found.\"\n      : $json[\"status\"]\n        ? \"Action complete: \" + $json[\"status\"]\n        : \"\u26a0\ufe0f No files or status returned \u2014 check workflow.\"\n}}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        1664,
+        -64
+      ],
+      "id": "***REDACTED***",
+      "name": "Send an SMS/MMS/WhatsApp message",
+      "executeOnce": true,
+      "credentials": {
+        "twilioApi": {
+          "id": "***REDACTED***",
+          "name": "Twilio account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Get incoming WhatsApp message text from Twilio payload\nconst incoming_message = $json[\"Body\"]?.trim() || \"\";\n\n// 2. Split into command + parameter (if any)\nconst parts = incoming_message.toLowerCase().split(/\\s+/, 2);  // First word = command\nconst command = parts[0];\nconst parameter = parts[1] || null;\n\n// 3. Optional: build a status/message response (if any data already present)\nlet message = \"\u26a0\ufe0f No files or status returned \u2014 check workflow.\";\n\nif ($json.files && $json.files.length > 0) {\n  message = \"Files:\\n\" + $json.files.map(f => f.name).join(\"\\n\");\n} else if ($json.files && $json.files.length === 0) {\n  message = \"No files found.\";\n} else if ($json.status) {\n  message = \"Action complete: \" + $json.status;\n}\n\n// 4. Return structured data for next nodes\nreturn [\n  {\n    json: {\n      command,         // e.g. \"delete\"\n      parameter,       // e.g. \"file123.pdf\"\n      raw_message: incoming_message,\n      message          // \u2714\ufe0f dynamic message for Twilio\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "***REDACTED***",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Map all incoming items from the previous node (Google Drive Search)\nreturn [\n  {\n    json: {\n      files: items.map(item => ({\n        id: item.json.id,\n        name: item.json.name\n      }))\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1456,
+        96
+      ],
+      "id": "***REDACTED***",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "={{$json[\"parameter\"]}}",
+        "limit": 1,
+        "filter": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        960,
+        32
+      ],
+      "id": "***REDACTED***",
+      "name": "Search files and folders1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "***REDACTED***",
+          "name": "REDACTED"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "={{$json[\"parameter\"]}}",
+        "limit": 1,
+        "filter": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        912,
+        224
+      ],
+      "id": "***REDACTED***",
+      "name": "Search files and folders2",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "***REDACTED***",
+          "name": "REDACTED"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Twilio Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Search files and folders",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Search files and folders1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Search files and folders2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search files and folders": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a file": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move file": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Send an SMS/MMS/WhatsApp message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search files and folders1": {
+      "main": [
+        [
+          {
+            "node": "Delete a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search files and folders2": {
+      "main": [
+        [
+          {
+            "node": "Move file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "***REDACTED***",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "***REDACTED***"
+  },
+  "id": "***REDACTED***",
+  "tags": []
+}
